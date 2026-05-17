@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GithubProvider({
@@ -53,6 +53,15 @@ const handler = NextAuth({
       return session;
     },
     async jwt({ token, user, account, profile }) {
+      //Add hasPortfolio to token on every sign in
+      if (token.sub) {
+        const portfolio = await prisma.portfolio.findUnique({
+          where: { userId: token.sub },
+        });
+        token.hasPortfolio = !!portfolio;
+      }
+
+      //Github signin
       if (account?.provider === "github" && profile) {
         const githubProfile = profile as any;
         await prisma.user.update({
@@ -66,6 +75,7 @@ const handler = NextAuth({
       return token;
     },
   },
-});
+};
 
+const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
