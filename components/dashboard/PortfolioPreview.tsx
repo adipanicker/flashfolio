@@ -113,12 +113,9 @@ export default function PortfolioPreview({
                 </div>
               </div>
               <div className="flex gap-1 flex-wrap mb-3">
-                {data.skills?.slice(0, 4).map((s: string) => (
-                  <span
-                    key={s}
-                    className="text-[9px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded"
-                  >
-                    {s}
+                {data.skills?.slice(0, 4).map((s: any, i: number) => (
+                  <span key={i} className="...">
+                    {typeof s === "string" ? s : s.name}
                   </span>
                 ))}
               </div>

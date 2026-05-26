@@ -16,8 +16,11 @@ export type OnboardingData = {
   template: string;
   data: {
     name: string;
-    bio: string;
     role: string;
+    tagline: string;
+    currentlyBuilding: string;
+    accent: string;
+    bio: string;
     avatar: string;
     location: string;
     email: string;
@@ -26,17 +29,19 @@ export type OnboardingData = {
     twitter: string;
     website: string;
     resumeUrl: string;
-    skills: string[];
+    skills: { category: string; name: string }[];
     projects: {
       title: string;
       description: string;
+      image: string;
       liveUrl: string;
       githubUrl: string;
+      featured: boolean;
     }[];
     experience: {
-      title: string;
       company: string;
-      duration: string;
+      role: string;
+      period: string;
       description: string;
     }[];
   };
@@ -48,8 +53,11 @@ const INITIAL_DATA: OnboardingData = {
   template: "minimalist",
   data: {
     name: "",
-    bio: "",
     role: "",
+    tagline: "",
+    currentlyBuilding: "",
+    accent: "indigo",
+    bio: "",
     avatar: "",
     location: "",
     email: "",
@@ -63,7 +71,6 @@ const INITIAL_DATA: OnboardingData = {
     experience: [],
   },
 };
-
 export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);

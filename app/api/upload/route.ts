@@ -49,8 +49,8 @@ export async function POST(req: Request) {
         .upload_stream(
           {
             resource_type: type === "resume" ? "raw" : "image",
-            folder: `flashfolio/${type === "resume" ? "resumes" : "avatars"}`,
-            public_id: `${type}_${session.user.id}`,
+            folder: `flashfolio/${type === "resume" ? "resumes" : type === "project" ? "projects" : "avatars"}`,
+            public_id: `${type}_${session.user.id}_${Date.now()}`,
             format: type === "resume" ? "pdf" : undefined,
             transformation:
               type === "avatar"

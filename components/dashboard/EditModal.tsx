@@ -16,7 +16,10 @@ export default function EditModal({
       ? JSON.parse(portfolio.data)
       : portfolio.data;
 
-  const [formData, setFormData] = useState(rawData);
+  const [formData, setFormData] = useState({
+    ...rawData,
+    experience: rawData.experience || [],
+  });
   const [saving, setSaving] = useState(false);
   const [skillInput, setSkillInput] = useState("");
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -73,6 +76,36 @@ export default function EditModal({
       "skills",
       formData.skills.filter((s: string) => s !== skill),
     );
+  };
+
+  const addExperience = () => {
+    if ((formData.experience || []).length >= 4) return;
+
+    updateField("experience", [
+      ...(formData.experience || []),
+      {
+        company: "",
+        role: "",
+        period: "",
+        description: "",
+      },
+    ]);
+  };
+
+  const updateExperience = (index: number, field: string, value: string) => {
+    const updated = formData.experience.map((exp: any, i: number) =>
+      i === index ? { ...exp, [field]: value } : exp,
+    );
+
+    updateField("experience", updated);
+  };
+
+  const removeExperience = (index: number) => {
+    const updated = formData.experience.filter(
+      (_: any, i: number) => i !== index,
+    );
+
+    updateField("experience", updated);
   };
 
   const updateProject = (index: number, field: string, value: string) => {
@@ -310,19 +343,110 @@ export default function EditModal({
               </button>
             </div>
             <div className="flex flex-wrap gap-2">
-              {formData.skills?.map((skill: string) => (
-                <span
-                  key={skill}
-                  className="flex items-center gap-1.5 text-xs text-indigo-300 bg-[#1a1a2e] border border-indigo-500/30 px-2.5 py-1 rounded-full"
-                >
-                  {skill}
-                  <button
-                    onClick={() => removeSkill(skill)}
-                    className="text-indigo-400 hover:text-red-400 transition-colors"
+              {formData.skills?.map((skill: any, i: number) => {
+                // 1. Extract the actual text whether it's a string or an object
+                const skillName =
+                  typeof skill === "string" ? skill : skill.name;
+
+                return (
+                  <span
+                    key={i} // Safest key since objects can't be used as React keys directly
+                    className="flex items-center gap-1.5 text-xs text-indigo-300 bg-[#1a1a2e] border border-indigo-500/30 px-2.5 py-1 rounded-full"
                   >
-                    ×
-                  </button>
-                </span>
+                    {skillName}
+                    <button
+                      onClick={() => removeSkill(skillName)} // Pass the extracted string!
+                      className="text-indigo-400 hover:text-red-400 transition-colors"
+                    >
+                      ×
+                    </button>
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Experience */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs text-[#666]">
+                Experience <span className="text-[#444]">(max 4)</span>
+              </label>
+              {(formData.experience || []).length < 4 && (
+                <button
+                  onClick={addExperience}
+                  className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+                >
+                  + Add experience
+                </button>
+              )}
+            </div>
+
+            {(formData.experience || []).length === 0 && (
+              <button
+                onClick={addExperience}
+                className="w-full border border-dashed border-[#222] text-[#444] text-sm py-4 rounded-lg hover:border-indigo-500/30 hover:text-indigo-400 transition-colors"
+              >
+                + Add work experience
+              </button>
+            )}
+
+            <div className="space-y-3">
+              {(formData.experience || []).map((exp: any, i: number) => (
+                <div
+                  key={i}
+                  className="bg-[#111] border border-[#222] rounded-xl p-4 space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-[#555]">
+                      Experience {i + 1}
+                    </span>
+                    <button
+                      onClick={() => removeExperience(i)}
+                      className="text-[#444] hover:text-red-400 transition-colors text-sm"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      type="text"
+                      value={exp.company}
+                      onChange={(e) =>
+                        updateExperience(i, "company", e.target.value)
+                      }
+                      placeholder="Company name"
+                      className="w-full bg-[#161616] border border-[#222] text-white text-sm px-3 py-2 rounded-lg focus:outline-none focus:border-indigo-500/50 placeholder:text-[#333]"
+                    />
+                    <input
+                      type="text"
+                      value={exp.role}
+                      onChange={(e) =>
+                        updateExperience(i, "role", e.target.value)
+                      }
+                      placeholder="Your role"
+                      className="w-full bg-[#161616] border border-[#222] text-white text-sm px-3 py-2 rounded-lg focus:outline-none focus:border-indigo-500/50 placeholder:text-[#333]"
+                    />
+                  </div>
+                  <input
+                    type="text"
+                    value={exp.period}
+                    onChange={(e) =>
+                      updateExperience(i, "period", e.target.value)
+                    }
+                    placeholder="e.g. Jan 2023 — Present"
+                    className="w-full bg-[#161616] border border-[#222] text-white text-sm px-3 py-2 rounded-lg focus:outline-none focus:border-indigo-500/50 placeholder:text-[#333]"
+                  />
+                  <textarea
+                    value={exp.description}
+                    onChange={(e) =>
+                      updateExperience(i, "description", e.target.value)
+                    }
+                    placeholder="What did you do? Key achievements, responsibilities..."
+                    rows={2}
+                    className="w-full bg-[#161616] border border-[#222] text-white text-sm px-3 py-2 rounded-lg focus:outline-none focus:border-indigo-500/50 placeholder:text-[#333] resize-none"
+                  />
+                </div>
               ))}
             </div>
           </div>

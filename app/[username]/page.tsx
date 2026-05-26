@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import MinimalistTemplate from "@/components/templates/Minimalist";
+import MinimalistTemplate from "@/components/templates/minimalist/index";
 import TerminalTemplate from "@/components/templates/Terminal";
 import ExecutiveTemplate from "@/components/templates/Executive";
 
